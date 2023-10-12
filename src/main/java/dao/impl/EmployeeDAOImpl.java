@@ -22,7 +22,19 @@ public class EmployeeDAOImpl implements EmployeeDAO {
 
     @Override
     public boolean createEmployee(Employee employee) {
-        return false;
+        passportDAO.createPassport(employee.getPassport());
+        //officeDAO.createOffice(employee.getOffice());
+        Connection connection = DBUtils.getConnection();
+        try {
+            Statement statement = connection.createStatement();
+            int count = statement.executeUpdate("INSERT INTO `employees` (`name`, `last_name`, `age`, `office_id`, `passport_id`, `created_ts`) " +
+                    "VALUES ('" + employee.getName() + "', '" + employee.getLastName() + "', '" + employee.getAge() + "', '" + employee.getOffice().getId() + "', '" + passportDAO.getIdByIndId(employee.getPassport().getIndId()) + "', CURRENT_TIMESTAMP)");
+
+            return count == 1;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -53,12 +65,27 @@ public class EmployeeDAOImpl implements EmployeeDAO {
 
     @Override
     public boolean deleteById(int id) {
-        return false;
+        Connection connection = DBUtils.getConnection();
+        try {
+            Statement statement = connection.createStatement();
+            int count = statement.executeUpdate("DELETE FROM employees WHERE `employees`.`id` = " + id);
+            return count == 1;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public boolean updateEmployee(Employee employee) {
-        return false;
+        Connection connection = DBUtils.getConnection();
+        try {
+            Statement statement = connection.createStatement();
+            int count = statement.executeUpdate("UPDATE `employees` SET `name` = '" + employee.getName() + "', `age` = '" + employee.getAge() + "', `passport_id` = '" + employee.getPassport().getId() + "'," +
+                    " `updated_ts` = 'CURRENT_TIMESTAMP', `created_ts` = '" + employee.getCreatedTs() + "' WHERE `employees`.`id` = " + employee.getId());
+            return count == 1;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -88,7 +115,25 @@ public class EmployeeDAOImpl implements EmployeeDAO {
 
     @Override
     public Set<Employee> getAllByOfficeId(Office office) {
-        return null;
+        Set<Employee> all = new HashSet<>();
+
+        Connection conn = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+
+        try{
+            conn = DBUtils.getConnection();
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT * FROM `users_db`.`offices` WHERE `id` = " + office.getId());
+            while (rs.next()){
+                all.add(createEmployee(rs));
+            }
+        }catch (SQLException e){
+            throw  new RuntimeException(e);
+        }finally {
+            DBUtils.release(conn, stmt, rs);
+        }
+        return all;
     }
 
     private Employee createEmployee(ResultSet rs) throws SQLException {

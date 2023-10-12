@@ -1,9 +1,17 @@
 package jdbc_test;
 
+import dao.EmployeeDAO;
+import dao.OfficeDAO;
+import dao.PassportDAO;
 import dao.impl.EmployeeDAOImpl;
 import dao.impl.OfficeDAOImpl;
+import dao.impl.PassportDAOImpl;
 import model.Employee;
 import model.Office;
+import model.Passport;
+
+import java.sql.Time;
+import java.sql.Timestamp;
 
 public class Test {
 
@@ -23,5 +31,22 @@ public class Test {
         //boolean isCreated = new OfficeDAOImpl().createOffice(office);
 
         //System.out.println(new OfficeDAOImpl().createOffice(office));
+
+        Passport passport1 = new Passport();
+        passport1.setIndId("ID9999999");
+        passport1.setPersonalId("MP999999");
+        passport1.setExpTs(Timestamp.valueOf("2024-07-22 09:08:07"));
+
+        Employee employee1 = new Employee();
+        employee1.setName("Robert");
+        employee1.setLastName("Downey");
+        employee1.setAge(58);
+        employee1.setOffice(new OfficeDAOImpl().findById(1));
+        employee1.setPassport(passport1);
+        employee1.setCreatedTs(new Timestamp(System.currentTimeMillis()));
+
+        EmployeeDAO  employeeDAO = new EmployeeDAOImpl();
+        employeeDAO.createEmployee(employee1);
+
     }
 }

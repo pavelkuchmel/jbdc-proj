@@ -8,8 +8,8 @@ import java.sql.Timestamp;
 @Data
 public class Passport {
     private int id;
-    private String personalID;
-    private String indID;
+    private String personalId;
+    private String indId;
     private Timestamp expTs;
     private Timestamp createdTs;
 }

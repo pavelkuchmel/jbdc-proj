@@ -14,7 +14,17 @@ import java.util.Set;
 public class PassportDAOImpl implements PassportDAO {
     @Override
     public boolean createPassport(Passport passport) {
-        return false;
+        Connection connection = DBUtils.getConnection();
+        try {
+            Statement statement = connection.createStatement();
+            int count = statement.executeUpdate("INSERT INTO `passport` (`personal_id`, `ind_id`, `exp_ts`, `created_ts`) " +
+                    "VALUES ('" + passport.getPersonalId() + "', '" + passport.getIndId() + "', '" + passport.getExpTs() + "', CURRENT_TIMESTAMP)");
+
+            return count == 1;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -26,8 +36,8 @@ public class PassportDAOImpl implements PassportDAO {
             if (rs.next()) {
                 Passport passport = new Passport();
                 passport.setId(id);
-                passport.setPersonalID(rs.getString("personal_id"));
-                passport.setIndID(rs.getString("ind_id"));
+                passport.setPersonalId(rs.getString("personal_id"));
+                passport.setIndId(rs.getString("ind_id"));
                 passport.setExpTs(rs.getTimestamp("exp_ts"));
                 passport.setCreatedTs(rs.getTimestamp("created_ts"));
                 return passport;
@@ -40,12 +50,27 @@ public class PassportDAOImpl implements PassportDAO {
 
     @Override
     public boolean deleteById(int id) {
-        return false;
+        Connection connection = DBUtils.getConnection();
+        try {
+            Statement statement = connection.createStatement();
+            int count = statement.executeUpdate("DELETE FROM passport WHERE `passport`.`id` = " + id);
+            return count == 1;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public boolean updatePassport(Passport passport) {
-        return false;
+        Connection connection = DBUtils.getConnection();
+        try {
+            Statement statement = connection.createStatement();
+            int count = statement.executeUpdate("UPDATE `passport` SET `personal_id` = '" + passport.getPersonalId() + "', " +
+                    "`ind_id` = '" + passport.getIndId() + "', `exp_ts` = '" + passport.getExpTs() + "', `created_ts` = " + passport.getCreatedTs() + " WHERE `passport`.`id` = " + passport.getId());
+            return count == 1;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -58,8 +83,8 @@ public class PassportDAOImpl implements PassportDAO {
             while (rs.next()) {
                 Passport passport = new Passport();
                 passport.setId(rs.getInt("id"));
-                passport.setPersonalID(rs.getString("personal_id"));
-                passport.setIndID(rs.getString("ind_id"));
+                passport.setPersonalId(rs.getString("personal_id"));
+                passport.setIndId(rs.getString("ind_id"));
                 passport.setExpTs(rs.getTimestamp("exp_ts"));
                 passport.setCreatedTs(rs.getTimestamp("created_ts"));
                 passports.add(passport);
@@ -68,6 +93,20 @@ public class PassportDAOImpl implements PassportDAO {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    @Override
+    public int getIdByIndId(String indId){
+        Connection connection = DBUtils.getConnection();
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery("SELECT id FROM `passport` WHERE `passport`.`ind_id` = '" + indId + "'");
+            if (rs.next()) {
+                return rs.getInt("id");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return 0;
     }
 }

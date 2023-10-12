@@ -10,4 +10,5 @@ public interface PassportDAO {
     boolean deleteById(int id);
     boolean updatePassport(Passport passport);
     Set<Passport> all();
+    int getIdByIndId(String indId);
 }
